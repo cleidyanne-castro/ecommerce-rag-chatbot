@@ -20,6 +20,8 @@ Privacy-safe e-commerce assistant using RAG, Shopify, AWS and public e-commerce 
 
 ## Planned stack
 
+- Databricks
+- SQL
 - Python
 - Pandas
 - FastAPI
