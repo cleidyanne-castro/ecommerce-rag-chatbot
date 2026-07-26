@@ -1,18 +1,13 @@
-# Databricks notebook source
-# /// script
-# [tool.databricks.environment]
-# environment_version = "5"
-# ///
-# DBTITLE 1,Amazon Silver Transformation
-# MAGIC %md
-# MAGIC ### Amazon Silver Transformation
-# MAGIC This notebook transforms Amazon Bronze data into Silver layer tables with:
-# MAGIC * Data quality checks and validation
-# MAGIC * Standardized column names and types
-# MAGIC * Deduplication
-# MAGIC * Enriched product data for RAG applications
+%md
+Amazon Silver Transformation
 
-# COMMAND ----------
+This notebook transforms Amazon Bronze data into Silver layer tables with:
+
+-Data quality checks and validation
+-Standardized column names and types
+-Deduplication
+-Enriched product data for RAG applications
+
 
 #Setup
 
@@ -34,8 +29,6 @@ spark.sql(
 )
 
 print("Schemas Gold and Silver available")
-
-# COMMAND ----------
 
 #Functions
 
@@ -69,9 +62,7 @@ def save_silver(
         f"({row_count:,} rows)"
     )
 
-# COMMAND ----------
 
-# DBTITLE 1,Transform Products
 #PRODUCTS
 
 #Read the products bronze table
@@ -126,8 +117,6 @@ print(
 
 display(products_silver.limit(10))
 save_silver(products_silver, "amazon_products")
-
-# COMMAND ----------
 
 #PRODUCTS FOR RAG
 
@@ -188,39 +177,31 @@ display(products_for_rag.select("product_id", "product_name", "searchable_text")
 
 save_silver(products_for_rag, "amazon_products_for_rag")
 
-# COMMAND ----------
 
-# MAGIC %sql
-# MAGIC SHOW TABLES IN workspace.ecommerce_silver
+%sql
+SHOW TABLES IN workspace.ecommerce_silver
 
-# COMMAND ----------
+%sql
+SELECT product_id, product_name, manufacturer, price, category, dimensions
+FROM workspace.ecommerce_silver.amazon_products
+LIMIT 20;
 
-# MAGIC %sql
-# MAGIC SELECT product_id, product_name, manufacturer, price, category, dimensions
-# MAGIC FROM workspace.ecommerce_silver.amazon_products
-# MAGIC LIMIT 20;
+%sql
+SELECT COUNT(*) as total_products, COUNT(DISTINCT category) as total_categories,
+AVG(price) as avg_price,
+MIN(price) as min_price,
+MAX(price) as max_price,
+COUNT(DISTINCT manufacturer) as total_manufacturers
+FROM workspace.ecommerce_silver.amazon_products
 
-# COMMAND ----------
 
-# MAGIC %sql
-# MAGIC SELECT 
-# MAGIC     COUNT(*) as total_products,
-# MAGIC     COUNT(DISTINCT category) as total_categories,
-# MAGIC     AVG(price) as avg_price,
-# MAGIC     MIN(price) as min_price,
-# MAGIC     MAX(price) as max_price,
-# MAGIC     COUNT(DISTINCT manufacturer) as total_manufacturers
-# MAGIC FROM workspace.ecommerce_silver.amazon_products
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC SELECT 
-# MAGIC     product_name,
-# MAGIC     manufacturer,
-# MAGIC     price,
-# MAGIC     category,
-# MAGIC     dimensions
-# MAGIC FROM workspace.ecommerce_silver.amazon_products
-# MAGIC WHERE LOWER(product_name) LIKE '%iphone%'
-# MAGIC ORDER BY price DESC
+%sql
+SELECT 
+product_name,
+manufacturer,
+price,
+category,
+dimensions
+FROM workspace.ecommerce_silver.amazon_products
+WHERE LOWER(product_name) LIKE '%iphone%'
+ORDER BY price DESC
