@@ -14,7 +14,6 @@
 
 # COMMAND ----------
 
-# DBTITLE 1,Setup
 #Setup
 
 from pyspark.sql import DataFrame
@@ -38,7 +37,6 @@ print("Schemas Gold and Silver available")
 
 # COMMAND ----------
 
-# DBTITLE 1,Functions
 #Functions
 
 def read_bronze(table_name: str) -> DataFrame:
@@ -131,7 +129,6 @@ save_silver(products_silver, "amazon_products")
 
 # COMMAND ----------
 
-# DBTITLE 1,Prepare for RAG
 #PRODUCTS FOR RAG
 
 #Read the silver products table
@@ -193,13 +190,11 @@ save_silver(products_for_rag, "amazon_products_for_rag")
 
 # COMMAND ----------
 
-# DBTITLE 1,Verify Silver Tables
 # MAGIC %sql
 # MAGIC SHOW TABLES IN workspace.ecommerce_silver
 
 # COMMAND ----------
 
-# DBTITLE 1,Query Products Sample
 # MAGIC %sql
 # MAGIC SELECT product_id, product_name, manufacturer, price, category, dimensions
 # MAGIC FROM workspace.ecommerce_silver.amazon_products
@@ -207,7 +202,6 @@ save_silver(products_for_rag, "amazon_products_for_rag")
 
 # COMMAND ----------
 
-# DBTITLE 1,Product Statistics
 # MAGIC %sql
 # MAGIC SELECT 
 # MAGIC     COUNT(*) as total_products,
@@ -220,7 +214,6 @@ save_silver(products_for_rag, "amazon_products_for_rag")
 
 # COMMAND ----------
 
-# DBTITLE 1,Search iPhone Products
 # MAGIC %sql
 # MAGIC SELECT 
 # MAGIC     product_name,
