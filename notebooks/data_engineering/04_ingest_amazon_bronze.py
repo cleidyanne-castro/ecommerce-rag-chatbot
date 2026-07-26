@@ -1,16 +1,4 @@
-# Databricks notebook source
-# /// script
-# [tool.databricks.environment]
-# environment_version = "5"
-# ///
-# DBTITLE 1,Amazon Bronze Ingestion
-# MAGIC %md
-# MAGIC ### Amazon Bronze Ingestion
-# MAGIC This notebook ingests the Amazon products CSV file into Delta table without applying business transformations.
-
-# COMMAND ----------
-
-# DBTITLE 1,Setup
+#Setup
 from pyspark.sql import functions as F
 from pyspark.sql.types import *
 from datetime import datetime
@@ -20,29 +8,12 @@ BRONZE_SCHEMA = "ecommerce_bronze"
 SILVER_SCHEMA = "ecommerce_silver"
 VOLUME_PATH = f"/Volumes/{CATALOG}/{BRONZE_SCHEMA}/raw_files/amazon"
 
-# COMMAND ----------
 
-# DBTITLE 1,List Volume Files
 amazon_path = '/Volumes/workspace/ecommerce_bronze/raw_files/amazon'
 
 display(dbutils.fs.ls(amazon_path))
 
-# COMMAND ----------
-
-# DBTITLE 1,Create Schemas
-# MAGIC %sql
-# MAGIC CREATE SCHEMA IF NOT EXISTS workspace.ecommerce_bronze;
-# MAGIC CREATE SCHEMA IF NOT EXISTS workspace.ecommerce_silver;
-# MAGIC CREATE SCHEMA IF NOT EXISTS workspace.ecommerce_gold;
-# MAGIC
-# MAGIC -- Remove schema incorreto
-# MAGIC DROP SCHEMA IF EXISTS workspace.ecommerce_amazon_silver;
-# MAGIC
-# MAGIC SHOW SCHEMAS IN workspace LIKE 'ecommerce*';
-
-# COMMAND ----------
-
-# DBTITLE 1,Ingest Amazon Products
+#Ingest Amazon Products
 csv_path = f"{VOLUME_PATH}/*.csv"
 
 amazon_raw = (
@@ -54,7 +25,7 @@ amazon_raw = (
     .csv(csv_path)
 )
 
-# Clean column names: replace spaces with underscores and convert to lowercase
+# Clean column names
 for col in amazon_raw.columns:
     amazon_raw = amazon_raw.withColumnRenamed(col, col.replace(" ", "_").lower())
 
@@ -79,16 +50,7 @@ print(f"Columns: {len(amazon_bronze.columns)}")
 
 display(amazon_bronze.limit(10))
 
-# COMMAND ----------
-
-# DBTITLE 1,Show Tables
-# MAGIC %sql
-# MAGIC SHOW TABLES IN workspace.ecommerce_bronze
-
-# COMMAND ----------
-
-# DBTITLE 1,Create Ingestion Summary
-# Create ingestion summary report
+#Create Ingestion Summary
 table_summary = []
 
 table_name = "amazon_products"
@@ -103,10 +65,3 @@ table_summary.append({
 
 summary_df = spark.createDataFrame(table_summary)
 display(summary_df)
-
-# COMMAND ----------
-
-# DBTITLE 1,Count Products
-# MAGIC %sql
-# MAGIC SELECT COUNT(*) AS total_products
-# MAGIC FROM workspace.ecommerce_bronze.amazon_products
